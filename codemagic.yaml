@@ -6,12 +6,12 @@ workflows:
       node: 18.20.4
       xcode: latest
       cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.voiceofthepeople.app
       vars:
         EXPO_PUBLIC_SUPABASE_URL: https://ywjrrppeozvktvkpatmc.supabase.co
         BUNDLE_ID: com.voiceofthepeople.app
-      groups:
-        - app_store_credentials
-        - apple_signing
     triggering:
       events:
         - push
@@ -22,6 +22,9 @@ workflows:
       - name: Install dependencies
         script: |
           npm install
+      - name: Fix del module compatibility
+        script: |
+          npm install del@6 --no-save
       - name: Expo Prebuild
         script: |
           npx expo prebuild --platform ios --clean
@@ -38,9 +41,7 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        auth: integration
         submit_to_testflight: true
         submit_to_app_store: false
 
@@ -51,10 +52,20 @@ workflows:
       node: 18.20.4
       vars:
         EXPO_PUBLIC_SUPABASE_URL: https://ywjrrppeozvktvkpatmc.supabase.co
+        EXPO_PUBLIC_SUPABASE_ANON_KEY: $EXPO_PUBLIC_SUPABASE_ANON_KEY
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
     scripts:
       - name: Install dependencies
         script: |
           npm install
+      - name: Fix del module compatibility
+        script: |
+          npm install del@6 --no-save
       - name: Expo Prebuild
         script: |
           npx expo prebuild --platform android --clean
@@ -69,12 +80,24 @@ workflows:
     max_build_duration: 60
     environment:
       node: 18.20.4
+      android_signing:
+        - voiceofthepeople
       vars:
         EXPO_PUBLIC_SUPABASE_URL: https://ywjrrppeozvktvkpatmc.supabase.co
+        EXPO_PUBLIC_SUPABASE_ANON_KEY: $EXPO_PUBLIC_SUPABASE_ANON_KEY
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
     scripts:
       - name: Install dependencies
         script: |
           npm install
+      - name: Fix del module compatibility
+        script: |
+          npm install del@6 --no-save
       - name: Expo Prebuild
         script: |
           npx expo prebuild --platform android --clean
@@ -83,3 +106,7 @@ workflows:
           cd android && ./gradlew bundleRelease
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
