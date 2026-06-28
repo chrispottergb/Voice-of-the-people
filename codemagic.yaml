@@ -8,10 +8,7 @@ workflows:
       cocoapods: default
       vars:
         EXPO_PUBLIC_SUPABASE_URL: https://ywjrrppeozvktvkpatmc.supabase.co
-        APP_STORE_CONNECT_ISSUER_ID: Encrypted(...)
-        APP_STORE_CONNECT_KEY_IDENTIFIER: Encrypted(...)
-        APP_STORE_CONNECT_PRIVATE_KEY: Encrypted(...)
-        CERTIFICATE_PRIVATE_KEY: Encrypted(...)
+        BUNDLE_ID: com.voiceofthepeople.app
       groups:
         - app_store_credentials
         - apple_signing
@@ -41,7 +38,9 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       app_store_connect:
-        auth: integration
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
         submit_to_app_store: false
 
@@ -64,3 +63,23 @@ workflows:
           cd android && ./gradlew assembleRelease
     artifacts:
       - android/app/build/outputs/apk/release/*.apk
+
+  android-aab:
+    name: Android AAB (Google Play)
+    max_build_duration: 60
+    environment:
+      node: 18.20.4
+      vars:
+        EXPO_PUBLIC_SUPABASE_URL: https://ywjrrppeozvktvkpatmc.supabase.co
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install
+      - name: Expo Prebuild
+        script: |
+          npx expo prebuild --platform android --clean
+      - name: Build AAB
+        script: |
+          cd android && ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
