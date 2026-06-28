@@ -80,9 +80,17 @@ workflows:
     max_build_duration: 60
     environment:
       node: 18.20.4
+      android_signing:
+        - voiceofthepeople
       vars:
         EXPO_PUBLIC_SUPABASE_URL: https://ywjrrppeozvktvkpatmc.supabase.co
         EXPO_PUBLIC_SUPABASE_ANON_KEY: $EXPO_PUBLIC_SUPABASE_ANON_KEY
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
     scripts:
       - name: Install dependencies
         script: |
@@ -98,3 +106,7 @@ workflows:
           cd android && ./gradlew bundleRelease
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
