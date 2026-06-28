@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Force del@6 to fix Node compatibility
+        run: npm install del@6 --no-save
+
       - name: Expo Prebuild
         run: npx expo prebuild --platform android --clean
         env:
