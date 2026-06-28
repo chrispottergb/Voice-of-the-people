@@ -2,6 +2,7 @@
   "expo": {
     "name": "Voice of the People",
     "slug": "voice-of-the-people",
+    "owner": "peoplesvoices-team",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
