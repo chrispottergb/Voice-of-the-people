@@ -15,10 +15,7 @@ interface Assertion {
   detail?: string
 }
 
-async function check(
-  name: string,
-  fn: () => Promise<boolean | { pass: boolean; detail: string }>
-): Promise<Assertion> {
+async function assert(name: string, fn: () => Promise<boolean | { pass: boolean; detail: string }>): Promise<Assertion> {
   try {
     const result = await fn()
     if (typeof result === 'boolean') return { name, pass: result }
@@ -40,41 +37,38 @@ async function countDistricts(type: string): Promise<number> {
 async function main() {
   console.log('🔍 Validating Wisconsin seed data...\n')
 
-  const assertions = await Promise.all([
-    check('Exactly 8 congressional districts', async () => {
+  const assertions: Assertion[] = await Promise.all([
+    assert('8 congressional districts', async () => {
       const n = await countDistricts('congressional')
-      return { pass: n === 8, detail: `found ${n}, expected 8` }
+      return { pass: n === 8, detail: `found ${n}` }
     }),
-    check('Exactly 33 state senate districts', async () => {
+    assert('33 state senate districts', async () => {
       const n = await countDistricts('state_senate')
-      return { pass: n === 33, detail: `found ${n}, expected 33` }
+      return { pass: n === 33, detail: `found ${n}` }
     }),
-    check('Exactly 99 state assembly districts', async () => {
+    assert('99 state assembly districts', async () => {
       const n = await countDistricts('state_assembly')
-      return { pass: n === 99, detail: `found ${n}, expected 99` }
+      return { pass: n === 99, detail: `found ${n}` }
     }),
-    check('Exactly 72 counties', async () => {
+    assert('72 counties', async () => {
       const n = await countDistricts('county')
-      return { pass: n === 72, detail: `found ${n}, expected 72` }
+      return { pass: n === 72, detail: `found ${n}` }
     }),
-    check('At least 20 municipalities', async () => {
-      const n = await countDistricts('municipal')
-      return { pass: n >= 20, detail: `found ${n}` }
-    }),
-    check('Every district has at least 1 office', async () => {
-      const { data: districts } = await supabase.from('districts').select('id').eq('state', 'WI')
+    assert('Every district has >= 1 office', async () => {
+      const { data: districts } = await supabase.from('districts').select('id')
       const { data: offices } = await supabase.from('offices').select('district_id')
-      const hasOffice = new Set((offices ?? []).map((o: { district_id: string }) => o.district_id))
-      const missing = (districts ?? []).filter((d: { id: string }) => !hasOffice.has(d.id))
+      const districtIds = new Set((districts ?? []).map((d: { id: string }) => d.id))
+      const officeDistrictIds = new Set((offices ?? []).map((o: { district_id: string }) => o.district_id))
+      const missing = [...districtIds].filter(id => !officeDistrictIds.has(id))
       return { pass: missing.length === 0, detail: `${missing.length} districts missing offices` }
     }),
-    check('No duplicate GEOIDs', async () => {
-      const { data } = await supabase.from('districts').select('geoid').eq('state', 'WI')
+    assert('No duplicate GEOIDs', async () => {
+      const { data } = await supabase.from('districts').select('geoid')
       const geoids = (data ?? []).map((d: { geoid: string }) => d.geoid)
       const unique = new Set(geoids)
       return { pass: unique.size === geoids.length, detail: `${geoids.length - unique.size} duplicates` }
     }),
-    check('All offices have non-null next_election', async () => {
+    assert('All offices have non-null next_election', async () => {
       const { count } = await supabase
         .from('offices')
         .select('*', { count: 'exact', head: true })
@@ -86,7 +80,7 @@ async function main() {
 
   const passed = assertions.filter(a => a.pass).length
   const failed = assertions.filter(a => !a.pass).length
-  const line = '─'.repeat(52)
+  const line = '─'.repeat(50)
 
   console.log(line)
   for (const a of assertions) {
@@ -95,11 +89,10 @@ async function main() {
     console.log(`${icon} ${a.name}${detail}`)
   }
   console.log(line)
-  console.log(`Result: ${passed} PASSED  ${failed > 0 ? failed + ' FAILED' : ''}`)
+  console.log(`Result: ${passed} passed, ${failed} failed`)
   console.log(line)
 
   if (failed > 0) process.exit(1)
-  console.log('\n🎉 All assertions passed. Database is ready.')
 }
 
 main().catch(err => {

@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "Voice of the People",
-    "slug": "voice-of-the-people",
+    "slug": "doc",
+    "owner": "peoplesvoices-team",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -50,7 +51,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "your-eas-project-id"
+        "projectId": "65d24412-655e-44aa-bbd2-7d5e60b6be59"
       }
     }
   }
