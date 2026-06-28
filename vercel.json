@@ -1,0 +1,10 @@
+{
+  "buildCommand": null,
+  "outputDirectory": "public",
+  "framework": null,
+  "rewrites": [
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/delete-account", "destination": "/delete-account.html" }
+  ]
+}
