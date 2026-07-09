@@ -22,7 +22,7 @@ const C = {
   yellow: '#f59e0b',
 }
 
-interface QuestionRow extends Question {
+type QuestionRow = Omit<Question, 'candidate' | 'district'> & {
   candidate: Pick<Profile, 'display_name' | 'full_name'> | null
   district: { name: string } | null
 }

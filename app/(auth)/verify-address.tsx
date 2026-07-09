@@ -94,7 +94,6 @@ export default function VerifyAddressScreen() {
         .update({
           district_ids: districtIds,
           district_id: primaryDistrictId,
-          address: address.trim(),
         })
         .eq('id', user.id);
 

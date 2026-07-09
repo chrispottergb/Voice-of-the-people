@@ -57,7 +57,7 @@ export default function QuestionsTab() {
     const [qRes, myQRes, cRes, upvoteRes] = await Promise.all([
       supabase
         .from('questions')
-        .select('*, candidate:candidate_id(display_name, full_name, party), response_count')
+        .select('*, candidate:candidate_id(display_name, full_name, party)')
         .eq('status', 'approved')
         .in('district_id', districtIds)
         .order('upvotes', { ascending: false })
@@ -133,7 +133,6 @@ export default function QuestionsTab() {
       topic_tags: selectedTopics,
       is_anonymous: isAnon,
       status: 'pending',
-      upvotes: 0,
     })
 
     setQuestionBody('')

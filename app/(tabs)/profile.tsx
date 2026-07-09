@@ -85,7 +85,7 @@ export default function ProfileScreen() {
     if (!profile) return
     setStatsLoading(true)
     try {
-      const promises: Promise<unknown>[] = []
+      const promises: PromiseLike<unknown>[] = []
 
       promises.push(
         supabase

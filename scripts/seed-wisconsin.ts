@@ -58,7 +58,7 @@ async function main() {
 
   for (let i = 0; i < statements.length; i++) {
     const stmt = statements[i] + ';'
-    const { error } = await supabase.rpc('exec_sql', { sql: stmt }).single().catch(() => ({ error: null }))
+    const { error } = await Promise.resolve(supabase.rpc('exec_sql', { sql: stmt }).single()).catch(() => ({ error: null, data: null }))
     if (error) {
       // Try direct approach for district/office inserts
       errorCount++

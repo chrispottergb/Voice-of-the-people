@@ -94,7 +94,6 @@ export default function RegisterScreen() {
             full_name: fullName.trim(),
             display_name: fullName.trim().split(' ')[0],
             role,
-            updated_at: new Date().toISOString(),
           },
           { onConflict: 'id' }
         );
