@@ -233,3 +233,6 @@ We will acknowledge security reports within 48 hours.
 
 export const DATA_SHARING_POLICY_VERSION = '1.0'
 export const DATA_SHARING_POLICY_DATE = '2026-06-28'
+
+export const DATA_SHARING_VERSION = DATA_SHARING_POLICY_VERSION
+export const DATA_SHARING_DATE = DATA_SHARING_POLICY_DATE

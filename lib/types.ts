@@ -4,7 +4,7 @@ export type QuestionStatus = 'pending' | 'approved' | 'flagged' | 'removed'
 export type ResponseStatus = 'draft' | 'published' | 'removed'
 export type Level = 'federal' | 'state' | 'county' | 'municipal'
 
-export interface District {
+export type District = {
   id: string
   geoid: string
   name: string
@@ -15,7 +15,7 @@ export interface District {
   created_at: string
 }
 
-export interface Office {
+export type Office = {
   id: string
   district_id: string
   title: string
@@ -29,7 +29,7 @@ export interface Office {
   district?: District
 }
 
-export interface Profile {
+export type Profile = {
   id: string
   role: UserRole
   full_name: string | null
@@ -52,7 +52,7 @@ export interface Profile {
   updated_at: string
 }
 
-export interface Question {
+export type Question = {
   id: string
   voter_id: string | null
   candidate_id: string
@@ -65,12 +65,12 @@ export interface Question {
   moderation_note: string | null
   is_anonymous: boolean
   created_at: string
-  candidate?: Profile
-  district?: District
+  candidate?: Profile | null
+  district?: District | null
   voter?: Profile | null
 }
 
-export interface Response {
+export type Response = {
   id: string
   question_id: string
   candidate_id: string
@@ -82,7 +82,7 @@ export interface Response {
   updated_at: string
 }
 
-export interface DistrictResolutionResult {
+export type DistrictResolutionResult = {
   congressional: District | null
   state_senate: District | null
   state_assembly: District | null
@@ -91,14 +91,80 @@ export interface DistrictResolutionResult {
   all_district_ids: string[]
 }
 
-export interface Database {
+export type ProfileInsert = {
+  id: string
+  role?: UserRole
+  full_name?: string | null
+  display_name?: string | null
+  avatar_url?: string | null
+  bio?: string | null
+  district_ids?: string[] | null
+  district_id?: string | null
+  address_hash?: string | null
+  verified_voter?: boolean
+  office_id?: string | null
+  party?: string | null
+  campaign_url?: string | null
+  identity_verified?: boolean
+  persona_inquiry_id?: string | null
+  stripe_customer_id?: string | null
+  stripe_sub_id?: string | null
+  sub_status?: string
+}
+
+export type QuestionInsert = {
+  voter_id?: string | null
+  candidate_id: string
+  district_id: string
+  office_id?: string | null
+  body: string
+  topic_tags?: string[] | null
+  status?: QuestionStatus
+  moderation_note?: string | null
+  is_anonymous?: boolean
+}
+
+export type Database = {
   public: {
     Tables: {
-      districts: { Row: District; Insert: Omit<District, 'id' | 'created_at'>; Update: Partial<Omit<District, 'id'>> }
-      offices: { Row: Office; Insert: Omit<Office, 'id' | 'created_at'>; Update: Partial<Omit<Office, 'id'>> }
-      profiles: { Row: Profile; Insert: Omit<Profile, 'created_at' | 'updated_at'>; Update: Partial<Omit<Profile, 'id'>> }
-      questions: { Row: Question; Insert: Omit<Question, 'id' | 'created_at' | 'upvotes'>; Update: Partial<Omit<Question, 'id'>> }
-      responses: { Row: Response; Insert: Omit<Response, 'id' | 'created_at' | 'updated_at'>; Update: Partial<Omit<Response, 'id'>> }
+      districts: {
+        Row: District
+        Insert: Omit<District, 'id' | 'created_at'>
+        Update: Partial<Omit<District, 'id'>>
+        Relationships: []
+      }
+      offices: {
+        Row: Office
+        Insert: Omit<Office, 'id' | 'created_at'>
+        Update: Partial<Omit<Office, 'id'>>
+        Relationships: []
+      }
+      profiles: {
+        Row: Profile
+        Insert: ProfileInsert
+        Update: Partial<ProfileInsert>
+        Relationships: []
+      }
+      questions: {
+        Row: Question
+        Insert: QuestionInsert
+        Update: Partial<QuestionInsert> & { upvotes?: number }
+        Relationships: []
+      }
+      responses: {
+        Row: Response
+        Insert: Omit<Response, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Response, 'id'>>
+        Relationships: []
+      }
+      question_upvotes: {
+        Row: { question_id: string; voter_id: string; created_at: string }
+        Insert: { question_id: string; voter_id: string }
+        Update: Partial<{ question_id: string; voter_id: string }>
+        Relationships: []
+      }
     }
+    Views: { [_ in never]: never }
+    Functions: { [_ in never]: never }
   }
 }

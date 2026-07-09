@@ -6,6 +6,7 @@ import {
 import { router } from 'expo-router'
 import * as DocumentPicker from 'expo-document-picker'
 import { supabase } from '@/lib/supabase'
+import type { ProfileInsert } from '@/lib/types'
 
 const C = {
   bg: '#08080f',
@@ -134,13 +135,16 @@ export default function UploadScreen() {
         continue
       }
 
-      const { error: profileErr } = await supabase.from('profiles').upsert({
+      const profileData: ProfileInsert = {
         id: userId,
         full_name: row.full_name,
         role: 'voter',
         verified_voter: true,
         district_id: row.district_id ?? null,
-      }, { onConflict: 'id' })
+        sub_status: 'free',
+        identity_verified: false,
+      }
+      const { error: profileErr } = await supabase.from('profiles').upsert(profileData, { onConflict: 'id' })
 
       if (profileErr) {
         res.push({ row: i + 1, name: row.full_name, status: 'error', message: profileErr.message })
